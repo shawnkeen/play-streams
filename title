@@ -1,0 +1,5 @@
+#!/bin/sh
+
+TITLE=/var/run/streams/tag
+cat $TITLE
+echo ""

@@ -1,0 +1,81 @@
+[Global]
+
+stations = lounge detektorm bytefm fm4 digitalis fm4Alt dlf drk detektorw
+dir = /var/run/streams
+player = play-stream.py
+
+[munich]
+url = http://88.198.140.214:8000
+name = munich radio
+
+[lounge]
+url = http://live.streamhosting.ch:8080
+name = lounge-radio
+
+[fm4]
+url = http://mp3stream1.apasf.apa.at:8000
+name = fm4
+
+[fm4Alt]
+url = mms://apasf.apa.at/fm4_live_worldwide
+name = fm4
+
+[bytefm]
+url = http://streamingserver04.byte.fm:8000/
+name = byteFM
+
+[detektorw]
+url = http://stream.hoerradar.de/detektorfm-wort-mp3-128
+name = detektor.fm wort
+
+[detektorm]
+url = http://stream.hoerradar.de/detektorfm-musik-mp3-128
+name = detektor.fm musik
+
+[pr]
+url = http://62.27.44.59/projectreloaded/livestream.mp3
+name = Project Reloaded
+
+[drk]
+url = http://www.dradio.de/streaming/dkultur.m3u
+name = dradio kultur
+
+[drw]
+url = http://www.dradio.de/streaming/dradiowissen.m3u
+name = dradio wissen
+
+[dlf]
+url = http://www.dradio.de/streaming/dlf.m3u
+name = deutschlandfunk
+
+[fritz]
+url = http://fritz.de/livemp3
+name = fritz.de
+
+[buzz]
+url = http://scfire-ntc-aa05.stream.aol.com:80/stream/1022
+name = the buzz
+
+[rampfm]
+url = http://han.radiostream.de:30065
+name = rampfm
+
+[missioncontrol]
+url = http://somafm.com/missioncontrol64.pls
+name = soma - mission control
+
+[spacestation]
+url = http://sfstream1.somafm.com:8200
+name = soma - space station
+
+[digitalis]
+url = http://mp2.somafm.com:8910
+name = soma - digitalis
+
+[cliqhop]
+url = http://mp2.somafm.com:2668
+name = soma - cliqhop
+
+[freefm]
+url = http://stream.freefm.de:8100
+name = free.fm ulm
