@@ -128,7 +128,7 @@ if __name__ == "__main__":
     argParser = argparse.ArgumentParser()
     argParser.add_argument("-c", dest="configFile", metavar="config", help="config location", default="")
     argParser.add_argument("-p", dest="playerFile", metavar="player", help="player location", default="")
-    argParser.add_argument("-l", dest="listStations", action="store_true", default=False)
+    argParser.add_argument("-l", dest="listStations", action="store_true", help="list available stations", default=False)
     argParser.add_argument("num", nargs="?", help="station number", default=None)
     args, unknown = argParser.parse_known_args(sys.argv[1:])
     
