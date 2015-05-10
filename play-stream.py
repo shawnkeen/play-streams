@@ -58,6 +58,9 @@ def onTag(bus, msg):
         segments = title.split("***")
         if(len(segments) > 0):
             out = segments[0].strip()
+
+    if not tagFile:
+        return
     try:
         with open(tagFile, "w") as of:
             of.write(out)
@@ -96,7 +99,7 @@ def run():
     import argparse
     argParser = argparse.ArgumentParser()
     argParser.add_argument("-s", dest="stationName", metavar="station", help="station name", default="")
-    argParser.add_argument("-d", dest="dir", help="directory for pid file, etc.", default="./")
+    argParser.add_argument("-t", dest="tagFile", help="The current tag in the stream will be written here.", default=None)
     argParser.add_argument("-p", dest="playlist", action="store_true", default=False)
     argParser.add_argument("uri", help="uri of stream")
     args, unknown = argParser.parse_known_args(sys.argv[1:])
@@ -106,36 +109,11 @@ def run():
     #    print "ERROR: Invalid number of arguments."
     #    exit(1)
     uri = getEntriesFromPlaylist(args.uri)[0]
-    setup(args.stationName, uri, args.dir)
-    global url
+    #setup(args.stationName, uri, args.dir)
     global onTag
-    writeFiles()
-    playStream(url, onTag)
-
-def setup(n, u, d):
-    global url
-    global stationName
-    global workingDir
-    url = u
-    stationName = n
-    workingDir = d
-        
-def writeFiles():    
-    global workingDir
     global tagFile
-    tagFile = workingDir+"tag"
-    pidFile = workingDir+"pid"
-    stationFile = workingDir+"station"
-    urlFile = workingDir+"url"
-    try:
-        with open(stationFile, "w") as of:
-            of.write(stationName)
-        with open(urlFile, "w") as of:
-            of.write(url)
-        with open(pidFile, "a") as of:
-            of.write(str(os.getpid())+"\n")
-    except IOError as oe:
-        print "ERROR: Could not write to output files: ", str(oe)
+    tagFile = args.tagFile
+    playStream(uri, onTag)
 
 url = ""
 stationName = ""
