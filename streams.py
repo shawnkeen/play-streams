@@ -4,8 +4,8 @@ import ConfigParser
 import sys
 import subprocess
 import os
+from os.path import join as joinPath
 
-CONFIG_FILE = "config"
 
 class Station:
     def __init__(self, name, url, playlist):
@@ -14,6 +14,41 @@ class Station:
         self.playlist = playlist
     def __str__(self):
         return self.name
+
+
+class Status:
+    def __init__(self, station, number, pid):
+        self.station = station
+        self.pid = str(pid)
+        self.number = str(number)
+
+    def writeToFile(self, dir):
+        with open(joinPath(dir, "station"), "w") as ff:
+            ff.write(self.station.name)
+        with open(joinPath(dir, "pid"), "a") as ff:
+            ff.write(self.pid+"\n")
+        with open(joinPath(dir, "url"), "w") as ff:
+            ff.write(self.station.url)
+        with open(joinPath(dir, "number"), "w") as ff:
+            ff.write(self.number)
+
+
+def getStatusFromFiles(dir):
+    try:
+        with open(joinPath(dir, "station"), "r") as ff:
+            name = ff.readline()
+        with open(joinPath(dir, "number"), "r") as ff:
+            number = int(ff.readline())
+        with open(joinPath(dir, "url"), "r") as ff:
+            url = ff.readline()
+        with open(joinPath(dir, "pid"), "r") as ff:
+            pid = int(ff.readline())
+    except:
+        return None
+
+    station = Station(name, url, False)
+    return Status(station, number, pid)
+
         
 class Config:
     def __init__(self, configFile):
@@ -37,6 +72,7 @@ class Config:
             print "ERROR Could not read config file "+configFile+":", str(e)
             exit(1)
     
+
 def killOld(pidFile):
     try:
         with open(pidFile, "r") as pidf:
@@ -49,13 +85,15 @@ def killOld(pidFile):
                 except Exception:
                     pass
         os.remove(pidFile)
-    except IOError:
+    except:
         pass
     
+
 def osd(message):
     cmd = 'echo '+message+' | /usr/bin/aosd_cat --font="Serif 30" -o 1000 -u 400 -R white -f 0 -p 4 -x -640 -y -20'
     os.system(cmd)
     
+
 def showTag(config):
     stationFile = config.dirName+"station"
     tagFile = config.dirName+"tag"
@@ -68,28 +106,75 @@ def showTag(config):
                 os.system(cmd)
     except IOError as e:
         print e
-    
-if __name__ == "__main__":        
-    path = os.path.dirname(os.path.realpath(__file__))
-    config = Config(path+"/"+CONFIG_FILE)
 
-    if len(sys.argv) != 2:
+
+def startPlayer(playerFile, station, tagFile, pidFile=None):
+    if pidFile:
+        killOld(pidFile)
+    popen = None
+    try:
+        with open(tagFile, "w") as ff:
+            ff.truncate()
+        with open(os.devnull, "w") as devnull:
+            popen = subprocess.Popen(["/usr/bin/python", playerFile, "-s", station.name, station.url, "-t", tagFile], close_fds=True, stderr = devnull, stdout = devnull)
+    except:
+        pass
+    return popen
+
+
+    
+if __name__ == "__main__":
+    import argparse
+    argParser = argparse.ArgumentParser()
+    argParser.add_argument("-c", dest="configFile", metavar="config", help="config location", default="")
+    argParser.add_argument("-p", dest="playerFile", metavar="player", help="player location", default="")
+    argParser.add_argument("-l", dest="listStations", action="store_true", default=False)
+    argParser.add_argument("num", nargs="?", help="station number", default=None)
+    args, unknown = argParser.parse_known_args(sys.argv[1:])
+    
+    currentPath = os.path.dirname(os.path.realpath(__file__))
+    configPath = ""
+
+    if not args.configFile:
+        configFile = joinPath(currentPath, "config")
+    else:
+        configFile = args.configFile
+        
+    config = Config(configFile)
+
+    if args.listStations:
+        for i in xrange(1, len(config.stations)):
+            print i, config.stations[i]
+        exit(0)
+
+    if not args.playerFile:
+        playerFile = joinPath(currentPath, config.player)
+    else:
+        playerFile = args.playerFile
+
+    tagFile = joinPath(config.dirName, "tag")
+    pidFile = joinPath(config.dirName, "pid")
+
+    if not args.num:
         showTag(config)
         exit(0)
         
     try:
-        num = int(sys.argv[1])
+        num = int(args.num)
     except ValueError:
         exit(1)
         
-    pidFile = config.dirName+"pid"
-
     if num == 0:    
         killOld(pidFile)
         osd("off")
         exit(0)
         
     station = config.stations[num]
-    killOld(pidFile)
-    subprocess.Popen(["/usr/bin/python", path+"/"+config.player, "-s", station.name, station.url, "-d", config.dirName], stderr = sys.stderr, stdout = sys.stdout)
+
+    popen = startPlayer(playerFile, station, tagFile, pidFile)
+
+    if popen:
+        status = Status(station, num, popen.pid)
+        status.writeToFile(config.dirName)
+
     osd(station.name)
