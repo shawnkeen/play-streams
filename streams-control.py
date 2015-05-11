@@ -32,6 +32,7 @@ if __name__ == "__main__":
     import argparse
     argParser = argparse.ArgumentParser()
     argParser.add_argument("-c", dest="configFile", metavar="config", help="config location", default="config")
+    argParser.add_argument("-p", dest="port", metavar="port", help="port to listen on", default="8000", required=False)
     args, unknown = argParser.parse_known_args(sys.argv[1:])
 
     config = streams.Config(args.configFile)
@@ -39,7 +40,11 @@ if __name__ == "__main__":
     s = socket.socket()
 
     host = socket.gethostname()
-    port = 2000
+    try:
+        port = int(args.port)
+    except:
+        print "could not read port number"
+        sys.exit(1)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind(("0.0.0.0", port))
 
