@@ -36,7 +36,7 @@ class Status:
     def __str__(self):
         out = ""
         out += self.number
-        out += "\n" + self.station
+        out += "\n" + str(self.station)
         out += "\n" + self.url
         if tag:
             out += "\n" + self.tag
