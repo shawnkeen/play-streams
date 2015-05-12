@@ -37,7 +37,6 @@ class Status:
         out = ""
         out += self.number
         out += "\n" + str(self.station)
-        out += "\n" + self.url
         if tag:
             out += "\n" + self.tag
         return out
