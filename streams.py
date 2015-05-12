@@ -59,7 +59,7 @@ def getStatusFromFiles(dir):
         return None
 
     station = Station(name, url, False)
-    return Status(station, number, pid)
+    return Status(station, number, pid, tag)
 
         
 class Config:
