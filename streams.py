@@ -55,7 +55,8 @@ def getStatusFromFiles(dir):
             pid = int(ff.readline())
         with open(jainPath(dir, "tag"), "r") as ff:
             tag = ff.readline()
-    except:
+    except IOError as e:
+        print e
         return None
 
     station = Station(name, url, False)
