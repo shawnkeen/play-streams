@@ -17,10 +17,11 @@ class Station:
 
 
 class Status:
-    def __init__(self, station, number, pid):
+    def __init__(self, station, number, pid, tag=""):
         self.station = station
         self.pid = str(pid)
         self.number = str(number)
+        self.tag = tag
 
     def writeToFile(self, dir):
         with open(joinPath(dir, "station"), "w") as ff:
@@ -31,6 +32,15 @@ class Status:
             ff.write(self.station.url)
         with open(joinPath(dir, "number"), "w") as ff:
             ff.write(self.number)
+
+    def __str__(self):
+        out = ""
+        out += self.number
+        out += "\n" + self.station
+        out += "\n" + self.url
+        if tag:
+            out += "\n" + self.tag
+        return out
 
 
 def getStatusFromFiles(dir):
@@ -43,6 +53,8 @@ def getStatusFromFiles(dir):
             url = ff.readline()
         with open(joinPath(dir, "pid"), "r") as ff:
             pid = int(ff.readline())
+        with open(jainPath(dir, "tag"), "r") as ff:
+            tag = ff.readline()
     except:
         return None
 

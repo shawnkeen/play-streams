@@ -72,9 +72,9 @@ if __name__ == "__main__":
             elif command == "status":
                 status = streams.getStatusFromFiles(config.dirName)
                 if not status:
-                    answer = "0\n"
+                    answer = "stopped\n"
                 else:
-                    answer = str(status.number) + "\n"
+                    answer = str(status) + "\n"
             elif command == "help":
                 answer = helpString()
             elif command == "play":
