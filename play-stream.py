@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import gi
+gi.require_version('Gst', '1.0')
 from gi.repository import Gst
 from gi.repository import GLib
 Gst.init(None)
@@ -66,6 +68,8 @@ def onTag(bus, msg):
         pass
     
 def onMessage(bus, message):
+    if not message:
+        return
     t = message.type
     if t == Gst.MessageType.TAG:
         onTag(bus, message)
