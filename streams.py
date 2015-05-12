@@ -53,7 +53,7 @@ def getStatusFromFiles(dir):
             url = ff.readline()
         with open(joinPath(dir, "pid"), "r") as ff:
             pid = int(ff.readline())
-        with open(jainPath(dir, "tag"), "r") as ff:
+        with open(joinPath(dir, "tag"), "r") as ff:
             tag = ff.readline()
     except IOError as e:
         print e
