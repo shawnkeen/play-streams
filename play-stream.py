@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from gi.repository import GObject
 from gi.repository import Gst
-import gst
+from gi.repository import GLib
+Gst.init(None)
 import sys
-import gobject
 import os
 import requests
 import ConfigParser
@@ -28,7 +27,10 @@ def getEntriesFromPlaylist(url):
     #print "get"
     if url.startswith("mms:"):
         return [url]	
-    page = requests.get(url)
+    try:
+        page = requests.head(url)
+    except Exception:
+        return [url]
     urls = [url]
     if page.headers["content-type"] == "audio/x-scpls":
         urls = getURLsFromPLS(StringIO.StringIO(page.text))    
@@ -39,16 +41,13 @@ def getEntriesFromPlaylist(url):
 
 def onTag(bus, msg):
     global tagFile
-    stream_tags = {}
     taglist = msg.parse_tag()
-    for key in taglist.keys():
-        stream_tags[key] = taglist[key]
+    ret, tag = taglist.get_string("title")
     out = ""
-    #print stream_tags
-    if 'title' in stream_tags:
+    if tag:
         title = ""
         sep = True
-        for seg in stream_tags['title'].encode("utf-8").replace("&", "and").split("  "):
+        for seg in tag.encode("utf-8").replace("&", "and").split("  "):
             if (len(seg.strip()) == 0):
                 if sep:
                     title += "-"
@@ -58,8 +57,7 @@ def onTag(bus, msg):
         segments = title.split("***")
         if(len(segments) > 0):
             out = segments[0].strip()
-
-    if not tagFile:
+    if not tagFile or not out:
         return
     try:
         with open(tagFile, "w") as of:
@@ -76,14 +74,14 @@ def onMessage(bus, message):
 
 def playStream(url, onTag):
     #creates a playbin (plays media form an uri) 
-    player = gst.element_factory_make("playbin", "player")
+    player = Gst.ElementFactory.make("playbin", "player")
 
     #set the uri
     player.set_property('uri', url)
 
     #start playing
     #player.set_property("volume", 0)
-    player.set_state(gst.STATE_PLAYING)
+    player.set_state(Gst.State.PLAYING)
 
     #listen for tags on the message bus; tag event might be called more than once
     bus = player.get_bus()
@@ -91,7 +89,7 @@ def playStream(url, onTag):
     bus.add_signal_watch()
     bus.connect('message::tag', onTag)
     bus.connect("message", onMessage)
-    mainloop = gobject.MainLoop()
+    mainloop = GLib.MainLoop()
     mainloop.run()    
     
 
