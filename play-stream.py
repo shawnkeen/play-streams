@@ -25,7 +25,7 @@ def getURLsFromPLS(fp):
         pass
     return out
 
-def getEntriesFromPlaylist(url):
+def getStreamURLs(url):
     #print "get"
     if url.startswith("mms:"):
         return [url]	
@@ -35,10 +35,13 @@ def getEntriesFromPlaylist(url):
         return [url]
     urls = [url]
     if page.headers["content-type"] == "audio/x-scpls":
-        urls = getURLsFromPLS(StringIO.StringIO(page.text))    
+        urls = getURLsFromPLS(StringIO.StringIO(requests.get(url).text))    
     if page.headers["content-type"] == "audio/x-mpegurl":
-        urls = page.text.split()
-    #print urls
+        try:
+            urls = requests.get(url).text.split()
+        except Exception as e:
+            print e
+            return [url]
     return urls
 
 def onTag(bus, msg):
@@ -110,7 +113,7 @@ def run():
     #if len(sys.argv) != 4:
     #    print "ERROR: Invalid number of arguments."
     #    exit(1)
-    uri = getEntriesFromPlaylist(args.uri)[0]
+    uri = getStreamURLs(args.uri)[0]
     #setup(args.stationName, uri, args.dir)
     global onTag
     global tagFile
