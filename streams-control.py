@@ -1,8 +1,11 @@
+# -*- coding: utf-8 -*-
+
 import sys
 import os
 import socket
 import streams
 from os.path import join as joinPath
+
 
 def get_file_path(name):
     return os.path.join(RUNDIR, name)
@@ -31,8 +34,13 @@ status          return the number of the playing station
 if __name__ == "__main__":
     import argparse
     argParser = argparse.ArgumentParser()
-    argParser.add_argument("-c", dest="configFile", metavar="config", help="config location", default="config")
-    argParser.add_argument("-p", dest="port", metavar="port", help="port to listen on", default="8000", required=False)
+    argParser.add_argument("-c", dest="configFile",
+                           metavar="config",
+                           help="config location", default="config")
+    argParser.add_argument("-p", dest="port",
+                           metavar="port",
+                           help="port to listen on", default="8000",
+                           required=False)
     args, unknown = argParser.parse_known_args(sys.argv[1:])
 
     config = streams.Config(args.configFile)
@@ -50,12 +58,10 @@ if __name__ == "__main__":
 
     s.listen(5)
 
-
     RUNDIR = "/var/run/streams"
     ST_NOSTREAM = 0
 
-
-    while True:        
+    while True:
         c, addr = s.accept()
         print "connected to", addr
 
@@ -79,7 +85,7 @@ if __name__ == "__main__":
                 answer = helpString()
             elif command == "play":
                 if len(line) < 2:
-                    answer = "no station number given"                
+                    answer = "no station number given"
                 else:
                     try:
                         num = int(line[1])
@@ -87,9 +93,14 @@ if __name__ == "__main__":
                         if num > 0:
                             station = config.stations[num]
                             tagFile = joinPath(config.dirName, "tag")
-                            popen = streams.startPlayer(config.player, station, tagFile, pidFile)
+                            popen = streams.startPlayer(config.player,
+                                                        station,
+                                                        tagFile,
+                                                        pidFile)
                             if popen:
-                                status = streams.Status(station, num, popen.pid)
+                                status = streams.Status(station,
+                                                        num,
+                                                        popen.pid)
                                 status.writeToFile(config.dirName)
                         else:
                             streams.killOld(pidFile)

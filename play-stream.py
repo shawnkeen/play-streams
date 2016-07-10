@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
-
 import gi
-gi.require_version('Gst', '1.0')
 from gi.repository import Gst
 from gi.repository import GLib
-Gst.init(None)
 import sys
-import os
 import requests
 import ConfigParser
 import StringIO
+Gst.init(None)
+gi.require_version('Gst', '1.0')
+
 
 def getURLsFromPLS(fp):
     out = []
@@ -25,17 +24,17 @@ def getURLsFromPLS(fp):
         pass
     return out
 
+
 def getStreamURLs(url):
-    #print "get"
     if url.startswith("mms:"):
-        return [url]	
+        return [url]
     try:
         page = requests.head(url)
     except Exception:
         return [url]
     urls = [url]
     if page.headers["content-type"] == "audio/x-scpls":
-        urls = getURLsFromPLS(StringIO.StringIO(requests.get(url).text))    
+        urls = getURLsFromPLS(StringIO.StringIO(requests.get(url).text))
     if page.headers["content-type"] == "audio/x-mpegurl":
         try:
             urls = requests.get(url).text.split()
@@ -43,6 +42,7 @@ def getStreamURLs(url):
             print e
             return [url]
     return urls
+
 
 def onTag(bus, msg):
     global tagFile
@@ -69,7 +69,8 @@ def onTag(bus, msg):
             of.write(out)
     except:
         pass
-    
+
+
 def onMessage(bus, message):
     if not message:
         return
@@ -79,42 +80,43 @@ def onMessage(bus, message):
     if t == Gst.MessageType.EOS:
         pass
 
+
 def playStream(url, onTag):
-    #creates a playbin (plays media form an uri) 
+    # creates a playbin (plays media form an uri)
     player = Gst.ElementFactory.make("playbin", "player")
 
-    #set the uri
+    # set the uri
     player.set_property('uri', url)
 
-    #start playing
-    #player.set_property("volume", 0)
+    # start playing
+    # player.set_property("volume", 0)
     player.set_state(Gst.State.PLAYING)
 
-    #listen for tags on the message bus; tag event might be called more than once
+    # Listen for tags on the message bus.
+    # The tag event might be called more than once.
     bus = player.get_bus()
     bus.enable_sync_message_emission()
     bus.add_signal_watch()
     bus.connect('message::tag', onTag)
     bus.connect("message", onMessage)
     mainloop = GLib.MainLoop()
-    mainloop.run()    
-    
+    mainloop.run()
+
 
 def run():
     import argparse
     argParser = argparse.ArgumentParser()
-    argParser.add_argument("-s", dest="stationName", metavar="station", help="station name", default="")
-    argParser.add_argument("-t", dest="tagFile", help="The current tag in the stream will be written here.", default=None)
-    argParser.add_argument("-p", dest="playlist", action="store_true", default=False)
+    argParser.add_argument("-s", dest="stationName", metavar="station",
+                           help="station name", default="")
+    argParser.add_argument("-t", dest="tagFile",
+                           help="The current tag in the stream will be written here.",
+                           default=None)
+    argParser.add_argument("-p", dest="playlist", action="store_true",
+                           default=False)
     argParser.add_argument("uri", help="uri of stream")
     args, unknown = argParser.parse_known_args(sys.argv[1:])
-    #print args
-    #print unknown
-    #if len(sys.argv) != 4:
-    #    print "ERROR: Invalid number of arguments."
-    #    exit(1)
     uri = getStreamURLs(args.uri)[0]
-    #setup(args.stationName, uri, args.dir)
+    # setup(args.stationName, uri, args.dir)
     global onTag
     global tagFile
     tagFile = args.tagFile
