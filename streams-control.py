@@ -24,7 +24,7 @@ def get_status():
     return num
 
 
-def helpString():
+def help_string():
     return """commands:
 play [num]      play station number num, 0 for stop
 stations        list all available stations
@@ -34,10 +34,13 @@ status          return the number of the playing station
 if __name__ == "__main__":
     import argparse
     argParser = argparse.ArgumentParser()
-    argParser.add_argument("-c", dest="configFile",
-                           metavar="config",
-                           help="config location", default="config")
-    argParser.add_argument("-p", dest="port",
+    argParser.add_argumentelp_string("-c",
+                                     dest="configFile",
+                                     metavar="config",
+                                     help="config location",
+                                     default="config")
+    argParser.add_argument("-p",
+                           dest="port",
                            metavar="port",
                            help="port to listen on", default="8000",
                            required=False)
@@ -82,7 +85,7 @@ if __name__ == "__main__":
                 else:
                     answer = str(status) + "\n"
             elif command == "help":
-                answer = helpString()
+                answer = help_string()
             elif command == "play":
                 if len(line) < 2:
                     answer = "no station number given"
